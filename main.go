@@ -28,7 +28,7 @@ func (c *Config) MakeUI() {
 
 func (c *Config) CreateMenuItems(window fyne.Window) {
 	openMenuItem := fyne.NewMenuItem("Open...", c.openFunc(window))
-	saveMenuItem := fyne.NewMenuItem("Save", func() {})
+	saveMenuItem := fyne.NewMenuItem("Save", c.saveFunc(window))
 	c.SaveMenuItem = saveMenuItem 
 	c.SaveMenuItem.Disabled = true 
 	saveAsMenuItem := fyne.NewMenuItem("Save as...", c.saveAsFunc(window))
@@ -69,7 +69,7 @@ func (c *Config) saveAsFunc(window fyne.Window) func() {
 	}
 }
 
-func (c *Config) openFunc(window fyne.Window) func () {
+func (c *Config) openFunc(window fyne.Window) func() {
 	return func() {
 		openDialog := dialog.NewFileOpen(func(read fyne.URIReadCloser, err error) {
 			if err != nil {
@@ -96,6 +96,20 @@ func (c *Config) openFunc(window fyne.Window) func () {
 		}, window)
 		openDialog.SetFilter(storage.NewExtensionFileFilter([]string{".md", ".MD"}))
 		openDialog.Show()
+	}
+}
+
+func (c *Config) saveFunc(window fyne.Window) func() {
+	return func() {
+		if c.CurrentFile != nil {
+			write, err := storage.Writer(c.CurrentFile)
+			if err != nil {
+				dialog.ShowError(err, window)
+				return
+			}
+			defer write.Close()
+			write.Write([]byte(c.EditWidget.Text))
+		}
 	}
 }
 
