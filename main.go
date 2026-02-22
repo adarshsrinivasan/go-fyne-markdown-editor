@@ -1,10 +1,14 @@
 package main
 
 import (
+	"io"
+	"strings"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -23,7 +27,7 @@ func (c *Config) MakeUI() {
 }
 
 func (c *Config) CreateMenuItems(window fyne.Window) {
-	openMenuItem := fyne.NewMenuItem("Open...", func() {})
+	openMenuItem := fyne.NewMenuItem("Open...", c.openFunc(window))
 	saveMenuItem := fyne.NewMenuItem("Save", func() {})
 	c.SaveMenuItem = saveMenuItem 
 	c.SaveMenuItem.Disabled = true 
@@ -47,6 +51,11 @@ func (c *Config) saveAsFunc(window fyne.Window) func() {
 				return
 			}
 
+			if !strings.HasSuffix(strings.ToLower(write.URI().String()), ".md") {
+				dialog.ShowInformation("Error", "Please name your file with '.md' or '.MD' extension", window)
+				return 
+			}
+
 			write.Write([]byte(c.EditWidget.Text))
 			c.CurrentFile = write.URI()
 			defer write.Close()
@@ -54,7 +63,39 @@ func (c *Config) saveAsFunc(window fyne.Window) func() {
 			window.SetTitle(window.Title() + " - " + write.URI().Name())
 			c.SaveMenuItem.Disabled = false
 		}, window)
+		saveDialog.SetFileName("Untitled.MD")
+		saveDialog.SetFilter(storage.NewExtensionFileFilter([]string{".md", ".MD"}))
 		saveDialog.Show()
+	}
+}
+
+func (c *Config) openFunc(window fyne.Window) func () {
+	return func() {
+		openDialog := dialog.NewFileOpen(func(read fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, window)
+			
+			}
+
+			if read == nil {
+				// user clicked cancel
+				return
+			}
+			defer read.Close()
+
+			data, err := io.ReadAll(read)
+			if err != nil {
+				dialog.ShowError(err, window)
+				return
+			}
+			c.EditWidget.SetText(string(data))
+			c.CurrentFile = read.URI()
+
+			window.SetTitle(window.Title() + " - " + read.URI().Name())
+			c.SaveMenuItem.Disabled = false
+		}, window)
+		openDialog.SetFilter(storage.NewExtensionFileFilter([]string{".md", ".MD"}))
+		openDialog.Show()
 	}
 }
 
