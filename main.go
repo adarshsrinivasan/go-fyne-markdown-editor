@@ -7,29 +7,40 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type App struct {
-	output *widget.Label
-	button *widget.Button
-	entry *widget.Entry
+type Config struct {
+	EditWidget *widget.Entry
+	PreviewWidget *widget.RichText
+	CurrentFile fyne.URI
+	SaveMenuItem *fyne.MenuItem
 }
 
-func (a *App) MakeUI() {
-	a.output = widget.NewLabel("Hello, World!")
-	a.entry = widget.NewEntry()
-	a.button = widget.NewButton("Enter", func() {
-		a.output.SetText(a.entry.Text)
-	})
-	a.button.Importance = widget.HighImportance
+func (c *Config) MakeUI() {
+	c.EditWidget = widget.NewMultiLineEntry()
+	c.PreviewWidget = widget.NewRichTextFromMarkdown("")
+	
+	c.EditWidget.OnChanged = c.PreviewWidget.ParseMarkdown
 }
+
 
 func main() {
-    a := app.New()
-	myApp := &App{}
+	// create the app object
+	a := app.New()
 
-	window := a.NewWindow("Hello World")
-	myApp.MakeUI()
+	// create the config object
+	myCfg := &Config{}
 
-	window.SetContent(container.NewVBox(myApp.output, myApp.entry, myApp.button))
-	window.Resize(fyne.Size{Width: 500, Height: 500})
+	// create the window
+	window := a.NewWindow("Markdown")
+
+	// get the user interface
+	myCfg.MakeUI()
+
+	// set content of the window
+	window.SetContent(container.NewHSplit(myCfg.EditWidget, myCfg.PreviewWidget))
+
+	// show and run the window
+	window.Resize(fyne.Size{Width: 800, Height: 500})
+	window.CenterOnScreen()
 	window.ShowAndRun()
+
 }
