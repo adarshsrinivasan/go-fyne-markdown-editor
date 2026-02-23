@@ -117,6 +117,7 @@ func (c *Config) saveFunc(window fyne.Window) func() {
 func main() {
 	// create the app object
 	a := app.New()
+	a.Settings().SetTheme(&myTheme{})
 
 	// create the config object
 	myCfg := &Config{}
