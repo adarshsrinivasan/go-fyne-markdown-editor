@@ -7,6 +7,7 @@ A Markdown editor built with [Fyne](https://fyne.io/) and Go. Features a split-p
 - **Live Preview** — Real-time Markdown rendering as you type
 - **Split View** — Side-by-side editor and preview panes
 - **File Operations** — Open, Save, and Save As for `.md` files
+- **Custom Theme** — Warm amber/cream color scheme with light and dark variants
 - **Cross-Platform** — Runs on macOS, Windows, and Linux
 - **Native Look** — Uses system-native widgets via Fyne
 
@@ -68,6 +69,8 @@ go install fyne.io/fyne/v2/cmd/fyne@latest
 ```
 .
 ├── main.go          # Application entry point and UI logic
+├── custom_theme.go  # Custom Fyne theme (amber/cream palette)
+├── main_test.go     # UI markup tests
 ├── Icon.png         # Application icon (512×512 PNG)
 ├── go.mod           # Go module definition
 ├── Makefile         # Build automation
