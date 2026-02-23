@@ -20,6 +20,9 @@ coverage.*
 *.coverprofile
 profile.cov
 
+# Test markup failure output (masters live in testdata/)
+testdata/failed/
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
